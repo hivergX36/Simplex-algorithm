@@ -1,6 +1,6 @@
 nbobj,nbconstraint:
 
-
+1,3,
 
 objective cost:
 
@@ -15,7 +15,6 @@ constraint cost:
 
 17,14,28,14,15,
 
-constraint born:
-
+constraint bound:
 
 42,55,53,
