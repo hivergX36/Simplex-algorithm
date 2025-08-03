@@ -3,11 +3,11 @@ import re
 class Simplex:
     
     def __init__(self) -> None:
-        self.number_obj = 0 
+        self.number_iteration = 0 
+        self.number_obj = 0
         self.obj_function = 0
         self.cost_index_choosen = 0 
         self.number_constraint = 0 
-        self.index_choosen = 0
         self.number_variables = 0 
         self.matrix = []
         self.number_spread_variables = 0
@@ -17,8 +17,6 @@ class Simplex:
         self.cost_constraint = []
         self.matrix_cost = []
         self.bound = []
-        self.out_base = []
-        self.base = []
         self.input_variable = 0 
         self.output_variable = 0
         
@@ -35,8 +33,6 @@ class Simplex:
               ParsedList.append(float(lignes[indice][compteur1:compteur2]))
               compteur1 = compteur2 + 1
               compteur2 = compteur1
-
-   
               if compteur1 > len(lignes[indice]) - 1:
                     break
         return ParsedList
@@ -60,55 +56,82 @@ class Simplex:
         print("cost_constraint", self.cost_constraint)
         self.bound = self.checknumber(lines, 9)
         print("bound", self.bound)
-        for i in range(self.number_variables):
-            self.out_base.append(1)
-            self.base.append(0)
-        for j in range(self.number_spread_variables):
-            self.out_base.append(0)
-            self.base.append(1)
+        for i in range(self.number_spread_variables):
             self.obj_standard_cost.append(0)
         for k in range(self.number_constraint):
             for l in range(self.number_spread_variables):
-                    self.cost_constraint[k].append(0)
+                self.cost_constraint[k].append(0)
+        for l in range(self.number_constraint):
+            self.cost_constraint[l].append(self.bound[l])
         self.obj_standard_cost.append(0)
-        print("out_base: ", self.out_base)
-        print("base: ", self.base)
         print("objective costs: ", self.obj_cost)
         print("objective standard costs: ", self.obj_standard_cost)
         print("self.cost_constraint: ", self.cost_constraint)
 
 
         
-    def choose_input_output_variable(self):
-        var_comparaison = [0 for i in range(self.number_constraint)]
+    def choose_input_variable(self):
         max = 0
-        index_max = 0
-        min = 0
-        index_min = 0
-        self.index_choosen = 0
         for i in range(self.number_variables):
             if self.obj_standard_cost[i] > max:
                 max = self.obj_standard_cost[i]
-                min = self.obj_standard_cost[i]
-                index_max = i
-                index_min = i 
+                self.input_variable = i
+     
+                    
+                    
+    def choose_pivot_row(self):
+        var_comparaison = 0
+        min = float("inf")
+        index_choosen = self.input_variable
         for j in range(self.number_constraint):
-            if self.cost_constraint[j][index_max] > 0:
-                var_comparaison[j] = max/self.cost_constraint[j][index_max]
-                if  var_comparaison[j] < min:
-                    min = var_comparaison[j]
-                    self.index_choosen = j 
-                    print(self.index_choosen)
+            if self.cost_constraint[j][index_choosen] > 0:
+                var_comparaison = self.cost_constraint[j][-1]/self.cost_constraint[j][index_choosen]
+                print("var coparison:", var_comparaison)
+                if  var_comparaison < min:
+                    min = var_comparaison
+                    self.output_variable = j
+                    
+    def pivot_dictionnary(self):
+        factor = self.cost_constraint[self.output_variable][self.input_variable]
+        pivot = [self.cost_constraint[self.output_variable][j]/factor for j in range(self.number_variables_standard + 1)]
+        for j in range(self.number_constraint):
+            if j != self.output_variable:
+                factor = self.cost_constraint[j][self.input_variable]
+                for i in range(self.number_variables_standard + 1):
+                    self.cost_constraint[j][i] -= factor * pivot[i]
+        factor = self.obj_standard_cost[self.input_variable]
+        for i in range(self.number_variables_standard + 1):
+            self.obj_standard_cost[i] -= factor * pivot[i]
+        self.cost_constraint[self.output_variable] = pivot
                     
                     
-        def display_simplexe(self):
-            print("Objective costs: ", self.obj_cost)
-            print("Standard costs: ", self.obj_standard_cost)
-            print("Cost constraints: ", self.cost_constraint)
-            print("Bound: ", self.bound)
-            print("Base: ", self.base)
-            print("Out base: ", self.out_base)
-            print("Index chosen: ", self.index_choosen)
+    def display_simplexe(self):
+        print("Objective costs: ", self.obj_cost)
+        print("Standard costs: ", self.obj_standard_cost)
+        print("Cost constraints: ", self.cost_constraint)
+        print("Bound: ", self.bound)
+            
+        
+        
+    def solve_simplex(self):
+            iteration_number = 0
+            stop = False
+            while not stop: 
+                print("Iteration number: ", iteration_number)
+                self.choose_input_variable()
+                self.choose_pivot_row()
+                self.pivot_dictionnary()
+                self.display_simplexe()
+                if sum([self.obj_standard_cost[i] for i in range(self.number_variables)]) <= 0:
+                    print("Optimal solution found")
+                    stop = True
+                if iteration_number > self.number_variables:
+                    print("the simplex is degenerated")
+                    stop = True
+                iteration_number += 1
+
+            
+                
         
         
         
