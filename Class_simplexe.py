@@ -63,6 +63,8 @@ class Simplex:
                 self.cost_constraint[k].append(0)
         for l in range(self.number_constraint):
             self.cost_constraint[l].append(self.bound[l])
+        for m in range(self.number_constraint):
+            self.cost_constraint[m][m + self.number_obj + 1] = 1
         self.obj_standard_cost.append(0)
         print("objective costs: ", self.obj_cost)
         print("objective standard costs: ", self.obj_standard_cost)
