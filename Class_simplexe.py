@@ -71,7 +71,7 @@ class Simplex:
         print("self.cost_constraint: ", self.cost_constraint)
 
 
-        
+    
     def choose_input_variable(self):
         max = 0
         for i in range(self.number_variables):
